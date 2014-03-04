@@ -40,6 +40,12 @@ var text2table = (function () {
             regex = new RegExp(data.expression, data.modifier);
             return true;
         },
+        returnResult = function () {
+            var result;
+            result = output;
+            output = '';
+            return result;
+        },
         toTable = (function () {
             var rows, columns = [], isNumeric = [],
                 regexps = {
@@ -214,6 +220,7 @@ var text2table = (function () {
                             }
                         }
                     }
+                    columns = [];
                 };
             return {
                 convert: function () {
@@ -233,14 +240,14 @@ var text2table = (function () {
         toTable: function (i) {
             input = i || null;
             if (initialize() && toTable.convert()) {
-                return output;
+                return returnResult();
             }
             throw 'Error occured while executing `toTable`';
         },
         toText: function (i) {
             input = i || null;
             if (initialize() && toText.convert()) {
-                return output;
+                return returnResult();
             }
             throw 'Error occured while execuring `toText`';
         }
