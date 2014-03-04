@@ -159,6 +159,7 @@ var text2table = (function () {
                             drawBottom();
                         }
                     }
+                    columns = [];
                 };
             return {
                 convert: function () {
