@@ -230,9 +230,6 @@ var text2table = (function () {
         data: function (opts) {
             extend(data, opts);
         },
-        show: function() {
-            return data;
-        },
         toTable: function (i) {
             input = i || null;
             if (initialize() && toTable.convert()) {
