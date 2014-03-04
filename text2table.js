@@ -117,10 +117,8 @@ var text2table = (function () {
                     var s, string, align;
                     for (s = 0; s < columns.length; s += 1) {
                         string = cols[s] || '';
-
                         align = (i === 0) ? 'center' : 'left';
                         // if (isNumeric[s] && i > 0) { align = "right"; }
-
                         string = alignText(align, ' ', string, columns[s]);
                         output += ' ' + string + ' ' + data.style.ver;
                     }
@@ -141,24 +139,20 @@ var text2table = (function () {
                     getCols();
                     for (n = 0; n < rows.length; n += 1) {
                         drawTop(n);
-
                         if (n === 1) {
                             output += data.style.ml;
                             drawHeaders();
                             output += "\n";
                         }
-
                         output += data.style.ver;
                         drawData(n, getCol(n));
                         output += "\n";
-
                         if (n === rows.length - 1) {
                             output += data.style.bl;
                             drawBottom();
                         }
                     }
                 };
-
             return {
                 convert: function () {
                     if (getRows()[rows.length - 1] === '') { rows.pop(); }
@@ -166,9 +160,71 @@ var text2table = (function () {
                     return true;
                 }
             };
+        }(this)),
+        toText = (function () {
+            var lines, separator = '', columns = [],
+                regexps = {
+                    all: /^\s*([\w\W]*?)\s*$/
+                },
+                getLines = function () {
+                    lines = input.split('\n');
+                },
+                separates = function (l) {
+                    return l.indexOf(' ') === -1;
+                },
+                buildSeparator = function () {
+                    var i, l;
+                    for (i = 0; i < lines.length; i += 1) {
+                        l = lines[i];
+                        if (separates(l)) {
+                            separator = l;
+                            return separator;
+                        }
+                    }
+                },
+                getColumns = function () {
+                    var i, char, spacer = separator[1];
+                    for (i = 0; i < separator.length; i += 1) {
+                        char = separator[i];
+                        if (char !== spacer) {
+                            columns.push(i);
+                        }
+                    }
+                },
+                extract = function () {
+                    getColumns();
+                    var i, l, s,
+                        from, to, str;
+                    for (i = 0; i < lines.length; i += 1) {
+                        l = lines[i];
+                        if (separates(l) !== true) {
+                            for (s = 0; s < columns.length - 1; s += 1) {
+                                from = columns[s] + 1;
+                                to = columns[s + 1];
+                                str = l.slice(from, to);
+                                str = str.match(new RegExp(regexps.all))[1];
+                                output += str;
+                                if (s < columns.length - 2) {
+                                    output += '\t | \t';
+                                }
+                            }
+                            if (i < lines.length - 1) {
+                                output += '\n';
+                            }
+                        }
+                    }
+                };
+            return {
+                convert: function () {
+                    getLines();
+                    if (buildSeparator() === '') {
+                        throw 'No separator found';
+                    }
+                    extract();
+                    return true;
+                }
+            };
         }(this));
-    // toText
-
     return {
         data: function (opts) {
             extend(data, opts);
@@ -180,7 +236,12 @@ var text2table = (function () {
             }
             throw 'Error occured while executing `toTable`';
         },
-        toText: function () {
+        toText: function (i) {
+            input = i || null;
+            if (initialize() && toText.convert()) {
+                return output;
+            }
+            throw 'Error occured while execuring `toText`';
         }
     };
 }());
