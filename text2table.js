@@ -1,194 +1,186 @@
-var text2table = (function(){
-  'use strict';
-  
-  var regex, input = null, output = '';
-  
-  var data = {
-    expression: '[\t\|]+',
-    modifier: 'g',
-    style: {
-      'hor': '-', 'ver': '|',
-      'tl': '+', 'tm': '+', 'tr': '+',
-      'ml': '+', 'mm': '+', 'mr': '+',
-      'bl': '+', 'bm': '+', 'br': '+'
-    }
-  };
-  
-  var extend = function(target, source) {
-    if(source) {
-      for(var key in source) {
-        var val = source[key];
-        if(typeof val !== 'undefined') {
-          target[key] = val;
-        }
-      }
-    }
-    return target;
-  };
-  
-  var initialize = function() {
-    if (input === null) {
-      throw 'Input is not given';
-    }
-    regex = new RegExp(data.expression, data.modifier);
-    return true;
-  };
-  
-  var toTable = (function() {
-    var rows;
-    var columns = [], isNumeric = [];
-    var regexps = {
-      rows: /[\r\n]+/,
-      spacenum: /^(\s*-?\d+\s*|\s*)$/
-    };
-    
-    var getRows = function() {
-      rows = input.split(new RegExp(regexps.rows));
-      return rows;
-    };
-  
-    var getCol = function(n) {
-      return rows[n].split(regex);
-    };
-  
-    var getCols = function() {
-      for (var i = 0; i < rows.length; i += 1) {
-        var col = getCol(i);
-        for (var s = 0; s < col.length; s += 1) {
-          var data = col[s];
-          
-          if (typeof columns[s] === 'undefined') {
-            isNumeric[s] = true;
-          }
+var text2table = (function () {
+    'use strict';
+    var regex, input = null, output = '',
+        data = {
+            expression: '[\t|]+',
+            modifier: 'g',
+            style: {
+                'hor': '-',
+                'ver': '|',
+                'tl': '+',
+                'tm': '+',
+                'tr': '+',
+                'ml': '+',
+                'mm': '+',
+                'mr': '+',
+                'bl': '+',
+                'bm': '+',
+                'br': '+'
+            }
+        },
+        extend = function (target, source) {
+            if (source) {
+                var key, val;
+                for (key in source) {
+                    if (source.hasOwnProperty(key)) {
+                        val = source[key];
+                        if (val === undefined) {
+                            target[key] = val;
+                        }
+                    }
+                }
+            }
+            return target;
+        },
+        initialize = function () {
+            if (input === null) {
+                throw 'Input is not given';
+            }
+            regex = new RegExp(data.expression, data.modifier);
+            return true;
+        },
+        toTable = (function () {
+            var rows, columns = [], isNumeric = [],
+                regexps = {
+                    rows: /[\r\n]+/,
+                    spacenum: /^(\s*-?\d+\s*|\s*)$/
+                },
+                getRows = function () {
+                    rows = input.split(new RegExp(regexps.rows));
+                    return rows;
+                },
+                getCol = function (n) {
+                    return rows[n].split(regex);
+                },
+                getCols = function () {
+                    var i, s, col, str;
+                    for (i = 0; i < rows.length; i += 1) {
+                        col = getCol(i);
+                        for (s = 0; s < col.length; s += 1) {
+                            str = col[s];
+                            if (columns[s] === undefined) {
+                                isNumeric[s] = true;
+                            }
+                            if (isNumeric[s] && !str.match(new RegExp(regexps.spacenum)) && i !== 0) {
+                                isNumeric[s] = false;
+                            }
+                            if (columns[s] === undefined || columns[s] < str.length) {
+                                columns[s] = str.length;
+                            }
+                        }
+                    }
+                    return columns;
+                },
+                alignText = function (pos, chr, str, len) {
+                    var more = len - str.length,
+                        left = Math.floor(more / 2),
+                        right = more - left;
+                    chr = (chr === undefined) ? ' ' : chr;
+                    pos = (pos === undefined) ? ' ' : pos;
 
-          if (isNumeric[s] && !data.match(new RegExp(regexps.spacenum)) && i !== 0) {
-            isNumeric[s] = false;
-          }
-          
-          if (typeof columns[s] === 'undefined' || columns[s] < data.length) {
-            columns[s] = data.length;
-          }
-        }
-      }
-      return columns;
-    };
-    
-    var alignText = function(pos, chr, str, len) {
-      var more = len - str.length;
-      var result = '';
-    
-      chr = (typeof chr === 'undefined') ? ' ' : chr;
-      pos = (typeof pos === 'undefined') ? ' ' : pos;
-    
-      if (pos === 'right') {
-        return new Array(more + 1).join(chr) + str;
-      } else if (pos === 'left') {
-        return str + new Array(more + 1).join(chr);
-      } else if (pos === 'center') {
-        var left = Math.floor(more / 2);
-        var right = more - left;
-        return new Array(left + 1).join(chr) + str + new Array(right + 1).join(chr);
-      }
-    };
-    
-    var drawTop = function(i) {
-      if (i === 0) {
-        output += data.style.tl;
-        for (var s = 0; s < columns.length; s += 1) {
-          output += new Array(columns[s] + 3).join(data.style.hor);
-          if (s < columns.length - 1) {
-            output += data.style.tm;
-          }
-          else output += data.style.tr;
-        }
-        output += "\n";
-      }
-    };
-  
-    var drawHeaders = function() {
-      for (var s = 0; s < columns.length; s += 1) {
-        output += new Array(columns[s] + 3).join(data.style.hor);
-        if (s < columns.length - 1) {
-          output += data.style.mm;
-        }
-        else {
-          output += data.style.mr;
-        }
-      }
-    };
-  
-    var drawData = function(i, cols) {
-      for (var s = 0; s < columns.length; s += 1) {
-        var string = cols[s] || '';
-  
-        var align = (i === 0) ? 'center' : 'left';
-        
-        // if (isNumeric[s] && i > 0) { align = "right"; }
+                    if (pos === 'right') {
+                        return new Array(more + 1).join(chr) + str;
+                    }
+                    if (pos === 'left') {
+                        return str + new Array(more + 1).join(chr);
+                    }
+                    //center
+                    return new Array(left + 1).join(chr) + str + new Array(right + 1).join(chr);
+                },
+                drawTop = function (i) {
+                    if (i === 0) {
+                        var s;
+                        output += data.style.tl;
+                        for (s = 0; s < columns.length; s += 1) {
+                            output += new Array(columns[s] + 3).join(data.style.hor);
+                            if (s < columns.length - 1) {
+                                output += data.style.tm;
+                            } else {
+                                output += data.style.tr;
+                            }
+                        }
+                        output += "\n";
+                    }
+                },
+                drawHeaders = function () {
+                    var s;
+                    for (s = 0; s < columns.length; s += 1) {
+                        output += new Array(columns[s] + 3).join(data.style.hor);
+                        if (s < columns.length - 1) {
+                            output += data.style.mm;
+                        } else {
+                            output += data.style.mr;
+                        }
+                    }
+                },
+                drawData = function (i, cols) {
+                    var s, string, align;
+                    for (s = 0; s < columns.length; s += 1) {
+                        string = cols[s] || '';
 
-        string = alignText(align, ' ', string, columns[s]);
-        output += ' ' + string + ' ' + data.style.ver;
-      }
-    };
-  
-    var drawBottom = function(i) {
-      for (var s = 0; s < columns.length; s += 1) {
-        output += new Array(columns[s] + 3).join(data.style.hor)
-      
-        if (s > columns.length - 1) output += data.style.br;
-        else output += data.style.bm;
-      }
-    };
-    
-    var getResult = function() {
-      getCols();
-      
-      for (var n = 0; n < rows.length; n += 1) {
-        drawTop(n);
+                        align = (i === 0) ? 'center' : 'left';
+                        // if (isNumeric[s] && i > 0) { align = "right"; }
 
-        if (n === 1) {
-          output += data.style.ml;
-          drawHeaders();
-          output += "\n";
-        }
+                        string = alignText(align, ' ', string, columns[s]);
+                        output += ' ' + string + ' ' + data.style.ver;
+                    }
+                },
+                drawBottom = function () {
+                    var s;
+                    for (s = 0; s < columns.length; s += 1) {
+                        output += new Array(columns[s] + 3).join(data.style.hor);
+                        if (s > columns.length - 1) {
+                            output += data.style.br;
+                        } else {
+                            output += data.style.bm;
+                        }
+                    }
+                },
+                getResult = function () {
+                    var n;
+                    getCols();
+                    for (n = 0; n < rows.length; n += 1) {
+                        drawTop(n);
 
-        output += data.style.ver;
-        drawData(n, getCol(n));
-        output += "\n";
+                        if (n === 1) {
+                            output += data.style.ml;
+                            drawHeaders();
+                            output += "\n";
+                        }
 
-        if (n === rows.length - 1) {
-          output += data.style.bl;
-          drawBottom();
-        }
-      }
-    };
-    
+                        output += data.style.ver;
+                        drawData(n, getCol(n));
+                        output += "\n";
+
+                        if (n === rows.length - 1) {
+                            output += data.style.bl;
+                            drawBottom();
+                        }
+                    }
+                };
+
+            return {
+                convert: function () {
+                    if (getRows()[rows.length - 1] === '') { rows.pop(); }
+                    getResult();
+                    return true;
+                }
+            };
+        }(this));
+    // toText
+
     return {
-      convert: function() {
-        if (getRows()[rows.length - 1] === '') { rows.pop(); }
-        getResult();
-        
-        return true;
-      }
+        data: function (opts) {
+            extend(data, opts);
+        },
+        toTable: function (i) {
+            input = i || null;
+            if (initialize() && toTable.convert()) {
+                return output;
+            }
+            throw 'Error occured while executing `toTable`';
+        },
+        toText: function () {
+        }
     };
-  })(this);
-  
-  // toText
-
-  return {
-    data: function(opts) {
-      extend(data, opts);
-    },
-    toTable: function(i) {
-      input = i || null;
-      
-      if (initialize() && toTable.convert()) {
-        return output;
-      } else {
-        throw 'Error occured while executing `toTable`';
-        return false;
-      }
-    },
-    toText: function() {
-    }
-  };
-})();
+}());
