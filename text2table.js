@@ -4,6 +4,7 @@ var text2table = (function () {
         data = {
             expression: '[\t|]+',
             modifier: 'g',
+            separator: '\t | \t',
             style: {
                 'hor': '-',
                 'ver': '|',
@@ -205,7 +206,7 @@ var text2table = (function () {
                                 str = str.match(new RegExp(regexps.all))[1];
                                 output += str;
                                 if (s < columns.length - 2) {
-                                    output += '\t | \t';
+                                    output += data.separator;
                                 }
                             }
                             if (i < lines.length - 1) {
