@@ -1,0 +1,70 @@
+=== Transform text to database table scheme art
+
+text2table.js gives the easiest simple way to convert text to table scheme ascii drawing and vise-versa.
+
+This tool might be useful to share SQL table data snippets at sites like stackoverflow.com to make your data formatted nicely and understandably.
+
+=== Usage
+
+There are three basic methods that you should use: *.data*, *.toTable*, and *.toText*
+
+*data* method is used to pass custom settings to the module. Defaults are:
+
+ data = {
+     expression: '[\t|]+', // delimeters to look at while using .toTable
+     modifier: 'g', // modifier for previous expression
+     separator: '\t | \t', // data separator used while using .toText
+     style: {
+         'hor': '-', // horizontal lines
+         'ver': '|', // vertical lines
+         'tl': '+', // top left corner
+         'tm': '+', // top spacers
+         'tr': '+', // top right corner
+         'ml': '+', // left side spacers
+         'mm': '+', // middle spacers
+         'mr': '+', // right side spacers
+         'bl': '+', // bottom left corner
+         'bm': '+', // bottom spacers
+         'br': '+' // bottom right corner
+     }
+ } 
+
+*toTable* method takes one parameter, that is a text you want to convert and have table art returned.
+
+*toText* method takes formatted table as a single string parameter and returns a text.
+
+=== Example
+
+Imagine you have following in your variable *my_sql*
+
+ id||user||1
+ 1||john||Sharing tables has never been easier!
+ 2||mike||text2table.js is nice.
+ 3||ann||good!
+
+You could start by giving appropriate settings
+
+ text2table.data({
+    expression: '[|]+', // we are looking for | as separators
+    separator: '||' // later we want to get back by separating data with ||
+ });
+
+then you to convert to table art
+
+ text2table.toTable(my_sql);
+
+and you get following
+
+ +-----+--------+----------------------------------------+
+ | id  |  user  |                 comment                |
+ +-----+--------+----------------------------------------+
+ | 1   |  john  |  Sharing tables has never been easier! |
+ | 2   |  mike  |  text2table.js is nice.                |
+ | 3   |  ann   |  good!                                 |
+ +-----+--------+----------------------------------------+
+
+you can reverse this case by calling
+
+ text2table.toText(my_sql_formatted);
+
+where *my_sql_formatted* is a nice table you got.

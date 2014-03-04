@@ -25,7 +25,7 @@ var text2table = (function () {
                 for (key in source) {
                     if (source.hasOwnProperty(key)) {
                         val = source[key];
-                        if (val === undefined) {
+                        if (val !== undefined) {
                             target[key] = val;
                         }
                     }
@@ -229,6 +229,9 @@ var text2table = (function () {
     return {
         data: function (opts) {
             extend(data, opts);
+        },
+        show: function() {
+            return data;
         },
         toTable: function (i) {
             input = i || null;
