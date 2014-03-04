@@ -170,7 +170,7 @@ var text2table = (function () {
             };
         }(this)),
         toText = (function () {
-            var lines, separator = [], columns = [],
+            var lines, separator = '', columns = [],
                 regexps = {
                     all: /^\s*([\w\W]*?)\s*$/
                 },
