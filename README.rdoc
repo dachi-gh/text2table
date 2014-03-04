@@ -1,8 +1,13 @@
+{<img src="https://codeclimate.com/github/dachi-gh/text2table.png" />}[https://codeclimate.com/github/dachi-gh/text2table]
+
 === Transform text to database table scheme art
 
 text2table.js gives the easiest simple way to convert text to table scheme ascii drawing and vise-versa.
 
 This tool might be useful to share SQL table data snippets at sites like stackoverflow.com to make your data formatted nicely and understandably.
+
+==== {You can view sample demo project here on GitHub pages}[https://dachi-gh.github.io/text2table]
+
 
 === Usage
 
@@ -68,3 +73,16 @@ you can reverse this case by calling
  text2table.toText(my_sql_formatted);
 
 where *my_sql_formatted* is a nice table you got.
+
+ +------------------+
+ |sn3co             |
+ |i+-1              |
+ |=j?               |
+ |+?                |
+ |1          #  ##  |
+ |           # #    |
+ |           #  ##  |
+ |        #  #    # |
+ |         ##   ##  |
+ +------------------+
+ jsstyle.github.com 
