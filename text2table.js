@@ -159,6 +159,7 @@ var text2table = (function () {
                             drawBottom();
                         }
                     }
+                    columns = [];
                 };
             return {
                 convert: function () {
@@ -169,7 +170,7 @@ var text2table = (function () {
             };
         }(this)),
         toText = (function () {
-            var lines, separator = '', columns = [],
+            var lines, separator = [], columns = [],
                 regexps = {
                     all: /^\s*([\w\W]*?)\s*$/
                 },
